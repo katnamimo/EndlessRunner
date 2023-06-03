@@ -60,7 +60,8 @@ class Play extends Phaser.Scene {
 
     // Initialize score
     this.score = 0;
-    this.scoreText = this.add.text(16, 16, 'Score: 0', { fontSize: '32px', fill: '#fff' });
+    this.highScore = parseInt(localStorage.getItem("highScore")) || 0; // Retrieve high score from localStorage or use 0 if not found
+    this.scoreText = this.add.text(16, 16, `Score: ${this.score} High Score: ${this.highScore}`, { fontSize: '32px', fill: '#fff' });
 
     // Load sound effects
     this.shootSound = this.sound.add("shootSound");
@@ -176,6 +177,15 @@ class Play extends Phaser.Scene {
     });
     this.gameOverText.setOrigin(0.5);
 
+    // Check and update high score
+    if (this.score > this.highScore) {
+      this.highScore = this.score;
+      localStorage.setItem("highScore", this.highScore); // Save high score to localStorage
+    }
+
+    // Display high score and score
+    this.scoreText.setText(`Score: ${this.score} High Score: ${this.highScore}`);
+
     // Add art and music credits
     this.artCreditText = this.add.text(config.width / 2, config.height / 2 + 50, 'Art by me', {
       fontSize: '24px',
@@ -200,20 +210,21 @@ class Play extends Phaser.Scene {
     this.restartButton.setOrigin(0.5);
     this.restartButton.setInteractive();
     this.restartButton.on('pointerdown', () => {
-      this.scene.restart();
+      this.restartGame();
     });
   }
+
   restartGame() {
     this.scene.restart();
     this.startSound.play(); // Play the start sound effect again
-  
+
     // Stop and play background music
     this.bgMusic.stop();
     this.bgMusic.play({ loop: true });
   }
-  
+
   increaseScore() {
     this.score += 10;
-    this.scoreText.setText(`Score: ${this.score}`);
+    this.scoreText.setText(`Score: ${this.score} High Score: ${this.highScore}`);
   }
 }
